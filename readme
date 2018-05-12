@@ -1,0 +1,2 @@
+type "make" for compile
+type "./test" for running code
