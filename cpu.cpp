@@ -38,23 +38,36 @@ static inline uint64_t end_timer(){
 
 void* foo(void*) {
     uint64_t end = end_timer();
+    if(starttime != 3 && end > starttime){
+        cout << end - starttime << endl;
+    }else if(starttime != 3){
+        cout << starttime - end << endl;
+    }
+    pthread_exit(NULL);
+}
+void* foo1(void*) {
+    uint64_t end = end_timer();
     cout << end - starttime << endl;
     pthread_exit(NULL);
 }
 
+uint64_t p1,p2;
 int main(int argc, char **argv){
-    pthread_t td;
-    for(int i = 0; i < 100; i++){
-        starttime = start_timer();
-        pthread_create(&td, NULL, foo, NULL);
-        pthread_join(td, NULL);
-    }
-    
-    //std::thread first (foo);
-    //first.join();
-    
+/* thread context switch
+    pthread_t td1;
+    starttime = 3;
+    pthread_create(&td1, NULL, foo, NULL);
+    starttime = start_timer();
+    pthread_join(td1, NULL);
+  */  
+/*create thread
+    pthread_t td1;
+    starttime = start_timer();
+    pthread_create(&td1, NULL, foo1, NULL);
+    pthread_join(td1, NULL);
+*/
+//create process
 /*
-    int counter = 0;
     uint64_t start, end1, end2;
     start = start_timer();
     pid_t pid = fork();
@@ -70,6 +83,28 @@ int main(int argc, char **argv){
         // parent process
     }
 */
+// processes switch
+    uint64_t s, e, overheadOfPrint;
+
+    s = start_timer();
+    cout << 'x' << 7654321-1234567 << endl;
+    e = end_timer();
+    overheadOfPrint = e - s;
+
+    starttime = start_timer();
+    pid_t pid = fork();
+    if(pid == 0){
+        // child process
+        cout << 'c' << end_timer() - starttime << endl; 
+        cout << 'c' << end_timer() - starttime - overheadOfPrint << endl; 
+        cout << 'c' << end_timer() - starttime - 2*overheadOfPrint << endl; 
+    }
+    else if(pid > 0){
+        // parent process
+        cout << 'p' << end_timer() - starttime << endl; 
+        cout << 'p' << end_timer() - starttime - overheadOfPrint << endl; 
+        cout << 'p' << end_timer() - starttime - 2*overheadOfPrint << endl; 
+    }
 
     return 0;
 
