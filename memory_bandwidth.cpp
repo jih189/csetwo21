@@ -9,7 +9,6 @@
 
 using namespace std;
 unsigned int high, low, id;
-uint64_t start, endt;
 #define L3CACHSIZE 4194304 
 static inline uint64_t start_timer(){
     __asm__ volatile( "cpuid \n\t"
@@ -34,66 +33,12 @@ static inline uint64_t end_timer(){
 }
 
 int main(int argc, char *argv[]){
-    uint64_t start, end;
-    // create a memory on heap
     uint64_t offset = L3CACHSIZE / sizeof(int);
-    int *mem = (int *)malloc(L3CACHSIZE * 50);
-    int in;
-    start = start_timer();
-    in = mem[0+1];
-    in = mem[offset+1];
-    in = mem[2*offset+1];
-    in = mem[3*offset+1];
-    in = mem[4*offset+1];
-    in = mem[5*offset+1];
-    in = mem[6*offset+1];
-    in = mem[7*offset+1];
-    in = mem[8*offset+1];
-    in = mem[9*offset+1];
-    in = mem[10*offset+1];
-    in = mem[11*offset+1];
-    in = mem[12*offset+1];
-    in = mem[13*offset+1];
-    in = mem[14*offset+1];
-    in = mem[15*offset+1];
-    in = mem[16*offset+1];
-    in = mem[17*offset+1];
-    in = mem[18*offset+1];
-    in = mem[19*offset+1];
-    in = mem[20*offset+1];
-    in = mem[21*offset+1];
-    in = mem[22*offset+1];
-    in = mem[23*offset+1];
-    in = mem[24*offset+1];
-    in = mem[25*offset+1];
-    in = mem[26*offset+1];
-    in = mem[27*offset+1];
-    in = mem[28*offset+1];
-    in = mem[29*offset+1];
-    in = mem[30*offset+1];
-    in = mem[31*offset+1];
-    in = mem[32*offset+1];
-    in = mem[33*offset+1];
-    in = mem[34*offset+1];
-    in = mem[35*offset+1];
-    in = mem[36*offset+1];
-    in = mem[37*offset+1];
-    in = mem[38*offset+1];
-    in = mem[39*offset+1];
-    in = mem[40*offset+1];
-    in = mem[41*offset+1];
-    in = mem[42*offset+1];
-    in = mem[43*offset+1];
-    in = mem[44*offset+1];
-    in = mem[45*offset+1];
-    in = mem[46*offset+1];
-    in = mem[47*offset+1];
-    in = mem[48*offset+1];
-    in = mem[49*offset+1];
-    end = start_timer();
-    std::cout << "overhead of reading from main memory : " << (end - start) / 50 << std::endl; 
+    // create a memory on heap
+//    if(argv[1][0] == '0'){
     int *mem1 = (int *)malloc(L3CACHSIZE * 50);
-    start = start_timer();
+    uint64_t start1, end1;
+    start1 = start_timer();
     mem1[0] = 6;
     mem1[offset] = 6;
     mem1[2*offset] = 6;
@@ -144,9 +89,67 @@ int main(int argc, char *argv[]){
     mem1[47*offset] = 6;
     mem1[48*offset] = 6;
     mem1[49*offset] = 6;
+    end1 = end_timer();
+    std::cout << "overhead of writing to main memory : " << (end1 - start1) / 50 << std::endl; 
+    delete mem1;
+//    }else{
+    uint64_t start, end;
+    int in;
+    int *mem = (int *)malloc(L3CACHSIZE * 50);
+    start = end_timer();
+    in = mem[0+1];
+    in = mem[offset+1];
+    in = mem[2*offset+1];
+    in = mem[3*offset+1];
+    in = mem[4*offset+1];
+    in = mem[5*offset+1];
+    in = mem[6*offset+1];
+    in = mem[7*offset+1];
+    in = mem[8*offset+1];
+    in = mem[9*offset+1];
+    in = mem[10*offset+1];
+    in = mem[11*offset+1];
+    in = mem[12*offset+1];
+    in = mem[13*offset+1];
+    in = mem[14*offset+1];
+    in = mem[15*offset+1];
+    in = mem[16*offset+1];
+    in = mem[17*offset+1];
+    in = mem[18*offset+1];
+    in = mem[19*offset+1];
+    in = mem[20*offset+1];
+    in = mem[21*offset+1];
+    in = mem[22*offset+1];
+    in = mem[23*offset+1];
+    in = mem[24*offset+1];
+    in = mem[25*offset+1];
+    in = mem[26*offset+1];
+    in = mem[27*offset+1];
+    in = mem[28*offset+1];
+    in = mem[29*offset+1];
+    in = mem[30*offset+1];
+    in = mem[31*offset+1];
+    in = mem[32*offset+1];
+    in = mem[33*offset+1];
+    in = mem[34*offset+1];
+    in = mem[35*offset+1];
+    in = mem[36*offset+1];
+    in = mem[37*offset+1];
+    in = mem[38*offset+1];
+    in = mem[39*offset+1];
+    in = mem[40*offset+1];
+    in = mem[41*offset+1];
+    in = mem[42*offset+1];
+    in = mem[43*offset+1];
+    in = mem[44*offset+1];
+    in = mem[45*offset+1];
+    in = mem[46*offset+1];
+    in = mem[47*offset+1];
+    in = mem[48*offset+1];
+    in = mem[49*offset+1];
     end = end_timer();
-    std::cout << "overhead of writing to main memory : " << (end - start) / 50 << std::endl; 
-    free(mem);
-    free(mem1);
+    std::cout << "overhead of reading from main memory : " << (end - start) / 50 << std::endl; 
+    delete mem;
+//    }
     return 0; 
 }

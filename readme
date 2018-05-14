@@ -1,2 +1,4 @@
 type "make" for compile
-type "./test" for running code
+type "./test 0" for testing reading
+type "./test 1" for testing writing 
+
