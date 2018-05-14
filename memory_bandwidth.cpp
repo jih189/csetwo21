@@ -91,7 +91,6 @@ int main(int argc, char *argv[]){
     in = mem[48*offset+1];
     in = mem[49*offset+1];
     end = start_timer();
-    std::cout << in;
     std::cout << "overhead of reading from main memory : " << (end - start) / 50 << std::endl; 
     int *mem1 = (int *)malloc(L3CACHSIZE * 50);
     start = start_timer();
