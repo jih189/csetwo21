@@ -33,49 +33,55 @@ static inline uint64_t end_timer(){
     return ((uint64_t)high << 32)|low;
 }
 
+
+/**
+ the idea of code is
+ 1. receive two arguments: file and t size
+ 2. open the file and read only first t bytes of the file
+ 3. close the file and reopen it
+ 4. read first t bytes of file again
+ 5. calculate the average read time
+*/ 
+
 int main(int argc, char **argv){
+
+    uint64_t test = (uint64_t)stoi(argv[2]);
+    uint64_t measuresize = test*1024*1024;
+    uint64_t BLOCKSIZE = 128 * 1024;
 
     string filename = "";
     filename += argv[1];
-    uint64_t start, end;
     uint64_t sum = 0;
     FILE * file;
     // open the file 
     file = fopen(filename.c_str(), "r");
-    uint64_t blocksize = 4*1024*1024;
-    uint64_t filesize;
-    // get file size
-    fseek(file, 0L, SEEK_END);
-    filesize = ftell(file);
-    cout << "file size is " << filesize << endl;
+    char * inbuf = (char*) malloc(BLOCKSIZE);
+    uint64_t start, end;
+    uint64_t step = measuresize / BLOCKSIZE;
+
     // put data of file into ram by reading through it 
-    char * inbuf = (char*) malloc(sizeof(char));
-    uint64_t step = filesize / blocksize;
-    cout << "step: " << step << endl;
     if(file != NULL){
         for(int i = 0; i < step; i++){
-            fread(inbuf, 1, 1, file);
-            fseek(file, blocksize, SEEK_CUR);
+            fread(inbuf, BLOCKSIZE, 1, file);
         }
     }
-    // close the file
+    // close the file and reopen it
     fclose(file);
-    cout << "reopen file\n";
-    // open it again and read it 100 times
     file = fopen(filename.c_str(), "r");
+    // read through the file again
     if(file != NULL){
-        for(int i = 0; i < 100; i++){
+        for(int i = 0; i < step; i++){
             start = start_timer();
-            fread(inbuf, 1, 1, file);
+            fread(inbuf, BLOCKSIZE, 1, file);
             end = end_timer();
-            sum += end - start;
-            // read the file head and tail alternatively 
-            if(i % 2 == 0)
-                fseek(file, 0, SEEK_END);
-            else
-                fseek(file, 0, SEEK_SET);
+            sum += (end - start);
         }
-        cout << "reading time is " << sum / 100 << endl;
+        // get the average time
+        cout << "reading time: " << sum / step << endl;
+    
     }
+    // close file and free memory
+    fclose(file);
+    free(inbuf);
     return 0;
 }
