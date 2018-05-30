@@ -4,8 +4,11 @@
 #include <unistd.h>
 #include <sys/wait.h>
 #include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
 #include <stdlib.h>
 #include <string.h>
+#include <cerrno>
 
 using namespace std;
 unsigned int high, low, id;
@@ -40,45 +43,28 @@ static inline uint64_t end_timer(){
 
 int main(int argc, char **argv){
 
-    uint64_t BLOCKSIZE = 3 * 1024 * 1024;
+    uint64_t BLOCKSIZE = 64;
 
     string filename = "";
     filename += argv[1];
     uint64_t sum = 0;
-    FILE * file;
-    // open the file 
-    file = fopen(filename.c_str(), "r");
-    // get file size
-    uint64_t filesize;
-    fseek(file, 0L, SEEK_END);
-    filesize = ftell(file);
-    fseek(file, 0, SEEK_SET);
-    char * inbuf = (char*) malloc(sizeof(char));
     uint64_t start, end;
-    uint64_t step = filesize / BLOCKSIZE;
-    cout << "file size " << filesize << endl;
-    // put data of file into ram by reading through it 
-    if(file != NULL){
-        for(int i = 0; i < step; i++){
-            fread(inbuf, 1, 1, file);
-            fseek(file, BLOCKSIZE - 1, SEEK_CUR);
-        }
+    int file;
+    // open the file 
+    file = open(filename.c_str(), O_DIRECT);
+    // check for error
+    if(file < 0){
+        printf("Error opening file: %s\n", strerror(errno));
     }
-    // close the file and reopen it
-    fclose(file);
-    file = fopen(filename.c_str(), "r");
-    if(file != NULL){
-        for(int i = 0; i < step; i++){
-            start = start_timer();
-            fread(inbuf, 1, 1, file);
-            end = end_timer();
-            sum += (end - start);
-            fseek(file, BLOCKSIZE - 1, SEEK_CUR);
-        }
-        cout << "sequential reading time is " << sum / step << endl;
+    char* buf = (char *) malloc(64);
+    int res = 1; 
+    while( res != 0){
+        start = start_timer();
+        res = read(file, buf, 64);
+        end = end_timer();
+        cout << end - start << endl;
     }
-    
-    fclose(file);
-    free(inbuf);
+    close(file);
+    free(buf);
     return 0;
 }
