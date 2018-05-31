@@ -39,11 +39,14 @@ static inline uint64_t end_timer(){
 
 /**
  the idea of code is
+ 1. use O_direct to change the read mode, so read does not cache the file
+    into file cache but to the user space memory.
+ 2. read the file once for loading file to file cache.
+ 3. read the fime sequential and get the average time.
 */ 
+#define BLOCKSIZE 64 
 
 int main(int argc, char **argv){
-
-    uint64_t BLOCKSIZE = 64;
 
     string filename = "";
     filename += argv[1];
@@ -51,19 +54,28 @@ int main(int argc, char **argv){
     uint64_t start, end;
     int file;
     // open the file 
-    file = open(filename.c_str(), O_DIRECT);
+    file = open(filename.c_str(), O_SYNC | O_DIRECT);
     // check for error
     if(file < 0){
         printf("Error opening file: %s\n", strerror(errno));
     }
-    char* buf = (char *) malloc(64);
-    int res = 1; 
-    while( res != 0){
-        start = start_timer();
-        res = read(file, buf, 64);
-        end = end_timer();
-        cout << end - start << endl;
+    cout << "open file " << filename << endl;
+    char* buf = (char *) malloc(BLOCKSIZE);
+    int filesize = lseek(file, 0, SEEK_END);
+    int blocknum = filesize / BLOCKSIZE;
+    lseek(file, 0, SEEK_SET);
+    // read time first
+    for(int i = 0; i < blocknum; i++){
+        read(file, buf, BLOCKSIZE);
     }
+    // read the file again
+    for(int i = 0; i < blocknum; i++){
+        start = start_timer();
+        read(file, buf, BLOCKSIZE);
+        end = end_timer();
+        sum += (end - start);
+    }
+    cout << "average reading time " << sum / blocknum << endl;
     close(file);
     free(buf);
     return 0;
