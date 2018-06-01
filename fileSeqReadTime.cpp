@@ -64,10 +64,6 @@ int main(int argc, char **argv){
     int filesize = lseek(file, 0, SEEK_END);
     int blocknum = filesize / BLOCKSIZE;
     lseek(file, 0, SEEK_SET);
-    // read time first
-    for(int i = 0; i < blocknum; i++){
-        read(file, buf, BLOCKSIZE);
-    }
     // read the file again
     for(int i = 0; i < blocknum; i++){
         start = start_timer();

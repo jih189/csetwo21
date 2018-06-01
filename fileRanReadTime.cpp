@@ -69,9 +69,6 @@ int main(int argc, char **argv){
     srand(time(NULL));
     int accesspos;
     for(int i = 0; i < blocknum; i++){
-        read(file, buf, BLOCKSIZE);
-    }
-    for(int i = 0; i < blocknum; i++){
         accesspos = rand() % filesize;
         lseek(file, accesspos, SEEK_SET);
         start = start_timer();
